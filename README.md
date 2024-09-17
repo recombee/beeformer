@@ -12,11 +12,11 @@ Collaborative filtering (CF) methods can capture patterns from interaction data 
 ## Steps to start training the models:
 
 1. create virtual environment `python3.10 -m venv beef` and activate it `source beef/bin/activate`
-2. clone this repository and navigate to it `cd beeFormer`
+2. clone this repository and navigate to it `cd beeformer`
 3. install packages `pip install -r requirements.txt`
-4. download the data for movielens: navigate to the `dataset/ml20m` folder and run `source download_data`
-5. download the data for goodbooks: navigate to the `dataset/goodbooks` folder and run `source download_data`
-6. download the data for amazonbooks: navigate to the `dataset/amazonbooks` folder and run `source download_data && python preprocess.py`
+4. download the data for movielens: navigate to the `_dataset/ml20m` folder and run `source download_data`
+5. download the data for goodbooks: navigate to the `_dataset/goodbooks` folder and run `source download_data`
+6. download the data for amazonbooks: navigate to the `_dataset/amazonbooks` folder and run `source download_data && python preprocess.py`
 7. in the root folder of the project run the `train.py`, for example like this:
 
 ```bash
