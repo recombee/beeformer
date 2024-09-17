@@ -1,0 +1,2 @@
+wget https://files.grouplens.org/datasets/movielens/ml-20m.zip
+unzip -j ml-20m.zip
