@@ -1,5 +1,8 @@
 [![License: CC BY-SA 4.0](https://img.shields.io/badge/License-CC_BY--SA_4.0-lightgrey.svg)](https://creativecommons.org/licenses/by-sa/4.0/) [![arXiv](https://img.shields.io/badge/arXiv-2409.10309-b31b1b.svg)](https://arxiv.org/abs/2409.10309)
 
+[![Follow me on HF](https://huggingface.co/datasets/huggingface/badges/resolve/main/follow-me-on-HF-sm-dark.svg)](https://huggingface.co/beeformer)
+
+
 
 # beeFormer
 
