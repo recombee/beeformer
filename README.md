@@ -120,6 +120,7 @@ Accepted at Recsys2024 for poster presentation.
 
 preprint available:
 
+```
 @misc{vančura2024beeformerbridginggapsemantic,
       title={beeFormer: Bridging the Gap Between Semantic and Interaction Similarity in Recommender Systems}, 
       author={Vojtěch Vančura and Pavel Kordík and Milan Straka},
@@ -129,3 +130,4 @@ preprint available:
       primaryClass={cs.IR},
       url={https://arxiv.org/abs/2409.10309}, 
 }
+```
