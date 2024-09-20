@@ -118,4 +118,14 @@ We used hyperparameters for training our models as follows.
 
 Accepted at Recsys2024 for poster presentation.
 
-TBA
+preprint available:
+
+@misc{vančura2024beeformerbridginggapsemantic,
+      title={beeFormer: Bridging the Gap Between Semantic and Interaction Similarity in Recommender Systems}, 
+      author={Vojtěch Vančura and Pavel Kordík and Milan Straka},
+      year={2024},
+      eprint={2409.10309},
+      archivePrefix={arXiv},
+      primaryClass={cs.IR},
+      url={https://arxiv.org/abs/2409.10309}, 
+}
