@@ -10,6 +10,8 @@ This is the official implementation provided with our paper [beeFormer: Bridging
 
 ## main idea of beeFormer
 
+![alt text](https://github.com/recombee/beeformer/blob/main/beeformer_explaining.png?raw=true)
+
 Collaborative filtering (CF) methods can capture patterns from interaction data that are not obvious at first sight. For example, when buying a printer, users can also buy toners, papers, or cables to connect the printer, and collaborative filtering can take such patterns into account. However, in the cold-start recommendation setup, where new items do not have any interaction at all, collaborative filtering methods cannot be used, and recommender systems are forced to use other approaches, like content-based filtering (CBF). The problem with content-based filtering is that it relies on item attributes, such as text descriptions. In our printer example, semantic similarity-trained language models will put other printers closer than accessories that users might be searching for. Our method is training language models to learn these user behavior patterns from interaction data to transfer that knowledge to previously unseen items. Our experiments show that performance benefits from this approach are enormous.
 
 ## Steps to start training the models:
