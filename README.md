@@ -6,7 +6,7 @@
 
 # beeFormer
 
-This is the official implementation provided with our paper "beeFormer: Bridging the Gap Between Semantic and Interaction Similarity in Recommender Systems". 
+This is the official implementation provided with our paper [beeFormer: Bridging the Gap Between Semantic and Interaction Similarity in Recommender Systems](https://arxiv.org/abs/2409.10309). 
 
 ## main idea of beeFormer
 
