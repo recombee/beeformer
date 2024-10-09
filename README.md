@@ -1,4 +1,4 @@
-[![License: CC BY-SA 4.0](https://img.shields.io/badge/License-CC_BY--SA_4.0-lightgrey.svg)](https://creativecommons.org/licenses/by-sa/4.0/) [![arXiv](https://img.shields.io/badge/arXiv-2409.10309-b31b1b.svg)](https://arxiv.org/abs/2409.10309)
+[![License: CC BY-SA 4.0](https://img.shields.io/badge/License-CC_BY--SA_4.0-lightgrey.svg)](https://creativecommons.org/licenses/by-sa/4.0/) [![DOI](https://img.shields.io/badge/DOI-10.1145/3640457.3691707-blue?style=flat&link=https://doi.org/10.1145/3640457.3691707)](https://doi.org/10.1145/3640457.3691707) [![arXiv](https://img.shields.io/badge/arXiv-2409.10309-b31b1b.svg)](https://arxiv.org/abs/2409.10309)
 
 [![Follow me on HF](https://huggingface.co/datasets/huggingface/badges/resolve/main/follow-me-on-HF-sm-dark.svg)](https://huggingface.co/beeformer)
 
@@ -119,20 +119,29 @@ We used hyperparameters for training our models as follows.
 | use_cold_start   | split the dataset item-wise (some items are hidden to test the genralization towards new items)                      | true                                    | true                                    | true                                    | false                                   |
 | use_time_split   | sort interactions by timestamp and use last 20% of interactions as a test set (generalization from the past to the future) | false                             | false                                   | false                                   | true                                    |             
 
+## RecSys 2024 poster
+
+[<img alt="RecSys poster" width="400px" src="beeFormer-poster.png">](beeFormer-poster.pdf)
+
 ## Citation
 
-Accepted at Recsys2024 for poster presentation.
+If you find this repository helpful, feel free to cite our paper:
 
-preprint available:
-
-```
-@misc{vančura2024beeformerbridginggapsemantic,
-      title={beeFormer: Bridging the Gap Between Semantic and Interaction Similarity in Recommender Systems}, 
-      author={Vojtěch Vančura and Pavel Kordík and Milan Straka},
-      year={2024},
-      eprint={2409.10309},
-      archivePrefix={arXiv},
-      primaryClass={cs.IR},
-      url={https://arxiv.org/abs/2409.10309}, 
+```bibtex
+@inproceedings{10.1145/3640457.3691707,
+        author = {Van\v{c}ura, Vojt\v{e}ch and Kord\'{\i}k, Pavel and Straka, Milan},
+        title = {beeFormer: Bridging the Gap Between Semantic and Interaction Similarity in Recommender Systems},
+        year = {2024},
+        isbn = {9798400705052},
+        publisher = {Association for Computing Machinery},
+        address = {New York, NY, USA},
+        url = {https://doi.org/10.1145/3640457.3691707},
+        doi = {10.1145/3640457.3691707},
+        booktitle = {Proceedings of the 18th ACM Conference on Recommender Systems},
+        pages = {1102–1107},
+        numpages = {6},
+        keywords = {Cold-start recommendation, Recommender systems, Sentence embeddings, Text mining, Zero-shot recommendation},
+        location = {Bari, Italy},
+        series = {RecSys '24}
 }
 ```
