@@ -34,7 +34,7 @@ class beeformerDataset(keras.utils.PyDataset):
             X,
             batch_size,
             shuffle,
-            {k: v.to(device) for k, v in tokenized_sentences.items()},
+            {k: v for k, v in tokenized_sentences.items()},
         )
 
         assert tokenized_sentences["input_ids"].shape[0] == X.shape[1]
@@ -84,7 +84,7 @@ class beeformerDataset(keras.utils.PyDataset):
             scipy_coo_y.shape,
         )
 
-        tokenized_items = {k: v[item_slicer_with_negatives] for k, v in self.tokenized_sentences.items()}
+        tokenized_items = {k: v[item_slicer_with_negatives].to(self.device) for k, v in self.tokenized_sentences.items()}
 
         slicer = np.arange(len(item_slicer))
         slicer_neg = np.arange(len(item_slicer_with_negatives))
