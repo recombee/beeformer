@@ -347,18 +347,19 @@ def main(args):
 
     # create callback object to monitor the training procedure
     cbs = []
-    eval_cb = evaluateWriter(
-        items_idx=dataset.all_interactions.item_id.cat.categories,
-        sbert=sbert,
-        evaluator=evaluator,
-        logdir=folder,
-        DEVICE=DEVICE,
-        texts=am_texts_all,
-        sbert_name=args.model_name,
-        evaluate_epoch=args.evaluate_epoch,
-        save_every_epoch=args.save_every_epoch,
-    )
-    cbs.append(eval_cb)
+    if args.evaluate == "true" or args.evaluate_epoch == "true":
+        eval_cb = evaluateWriter(
+            items_idx=dataset.all_interactions.item_id.cat.categories,
+            sbert=sbert,
+            evaluator=evaluator,
+            logdir=folder,
+            DEVICE=DEVICE,
+            texts=am_texts_all,
+            sbert_name=args.model_name,
+            evaluate_epoch=args.evaluate_epoch,
+            save_every_epoch=args.save_every_epoch,
+        )
+        cbs.append(eval_cb)
 
     # build the model
     model.compile(
