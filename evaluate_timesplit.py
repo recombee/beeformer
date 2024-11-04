@@ -19,6 +19,7 @@ parser.add_argument("--dataset", default="-", type=str, help="Dataset to run on"
 # sentence transformer details
 parser.add_argument("--sbert", default="none", type=str, help="Input sentence transformer model to train")
 parser.add_argument("--max_seq_length", default=0, type=int, help="Maximum sequece length for sbert")
+parser.add_argument("--image_model", default="none", type=str, help="Input image model to test")
 
 
 args = parser.parse_args([] if "__file__" not in globals() else None)
@@ -39,6 +40,8 @@ from tqdm import tqdm
 
 from config import config
 from utils import *
+
+import images
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Using device {DEVICE}")
@@ -72,10 +75,21 @@ def main(args):
 
     print(dataset)
 
-    sbert = SentenceTransformer(args.sbert, device=DEVICE, trust_remote_code=True)
-    if args.max_seq_length > 0:
-        sbert.max_seq_length = args.max_seq_length
-    embs = sbert.encode(dataset.texts, show_progress_bar=True)
+    if args.sbert!="none":
+        sbert = SentenceTransformer(args.sbert, device=DEVICE, trust_remote_code=True)
+        if args.max_seq_length > 0:
+            sbert.max_seq_length = args.max_seq_length
+        embs = sbert.encode(dataset.texts, show_progress_bar=True)
+    elif args.image_model!="none":
+        image_model = images.ImageModel(args.image_model, device=DEVICE)
+
+        tokenized_images_dict = images.read_images_into_dict(dataset.all_interactions.item_id.cat.categories, fn=image_model.tokenize, path=dataset.images_dir, suffix=dataset.images_suffix)
+        tokenized_test_images = images.read_images_from_dict(dataset.all_interactions.item_id.cat.categories, tokenized_images_dict)
+
+        embs = image_model.encode(tokenized_test_images)
+
+    else:
+        print("Model not specified.")
 
     model = SparseKerasELSA(
         len(dataset.all_interactions.item_id.cat.categories),
