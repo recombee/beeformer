@@ -7,9 +7,9 @@ import os
 
 def read_image(id, fn, path, suffix=""):
     try:
-        img=Image.open(os.path.join(path,id+""+".jpg"))
+        img=Image.open(os.path.join(path,id+suffix+".jpg"))
     except FileNotFoundError:
-        print(f"Error reading image {os.path.join(path,id+".jpg")}. Replacing with empty image.")
+        print(f"Error reading image {os.path.join(path,id+suffix+'.jpg')}. Replacing with empty image.")
         img=Image.fromarray(np.zeros([10,10,3]).astype('uint8'), 'RGB')
     return fn([img])
 
