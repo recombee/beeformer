@@ -347,6 +347,8 @@ class Dataset:
         items_features=None,
         partial=None,
         ts_part=0.2,
+        images_dir=None,
+        images_suffix="",
     ):
         self.filename = filename
         mapping = {item_id_name: "item_id", user_id_name: "user_id", value_name: "value"}
@@ -440,6 +442,8 @@ class Dataset:
         self.num_coldstart_items = num_coldstart_items
         self.partial = partial
         self.ts_part = ts_part
+        self.images_dir = images_dir
+        self.images_suffix = images_suffix
 
     # create test split for user-based evaluation
     def make_test_split(self, n_test_users=10000, random_state=42, load_previous_splits=False):

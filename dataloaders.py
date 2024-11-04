@@ -10,7 +10,6 @@ import torch
 
 from utils import *
 
-
 class beeformerDataset(keras.utils.PyDataset):
     """
     input sparse interaction matrix
@@ -37,7 +36,7 @@ class beeformerDataset(keras.utils.PyDataset):
             {k: v for k, v in tokenized_sentences.items()},
         )
 
-        assert tokenized_sentences["input_ids"].shape[0] == X.shape[1]
+        assert get_first_item(tokenized_sentences).shape[0] == X.shape[1]
         self.indices = np.arange(X.shape[0])
         self.items_indices = np.arange(X.shape[1])
         self.device = device
@@ -98,7 +97,6 @@ class beeformerDataset(keras.utils.PyDataset):
     def on_epoch_end(self):
         if self.shuffle:
             np.random.shuffle(self.indices)
-
 
 class PredictDfRecSysDataset(keras.utils.PyDataset):
     """

@@ -9,14 +9,14 @@ import torch
 
 from dataloaders import *
 from layers import *
-
+from utils import get_first_item
 
 # beeformer optimized with nmse (expected loss since all the normalizations inside the train step)
 class NMSEbeeformer(keras.models.Model):
     def __init__(self, tokenized_sentences, items_idx, sbert, device, top_k=0, sbert_batch_size=128):
         super().__init__()
         self.device = device
-        self.sbert = LayerSBERT(sbert, device)
+        self.sbert = LayerSBERT(sbert, device, tokenized_sentences)
         self.items_idx = items_idx
         self.tokenized_sentences = tokenized_sentences
         self.top_k = top_k
@@ -39,7 +39,7 @@ class NMSEbeeformer(keras.models.Model):
         # init everything for training
         self.zero_grad()
         sbert_batch_size = self.sbert_batch_size
-        len_sentences = tokenized_items["input_ids"].shape[0]
+        len_sentences = get_first_item(tokenized_items).shape[0]
         max_i = math.ceil(len_sentences / sbert_batch_size)
 
         # sbert forward pass #1 - we want to get embeddings for items to compute loss

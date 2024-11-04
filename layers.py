@@ -7,7 +7,7 @@ import sentence_transformers
 import torch
 
 from keras.layers import TorchModuleWrapper
-
+from images import ImageModel
 
 # basic elsa model as a keras layer (usebale at other keras models)
 class LayerELSA(keras.layers.Layer):
@@ -39,18 +39,19 @@ class LayerELSA(keras.layers.Layer):
         return keras.activations.relu(xAAT - x)
 
 
-# keras wrapper around sentence transformers objet
+# keras wrapper around sentence transformers object
 class LayerSBERT(keras.layers.Layer):
-    def __init__(self, model, device):
+    def __init__(self, model, device, tokenized_sentences):
         super(LayerSBERT, self).__init__()
         self.device = device
         self.sbert = TorchModuleWrapper(model.to(device))
         self.tokenize_ = self.sb().tokenize
+        self.tokenized_sentences = tokenized_sentences
         self.build()
 
     def sb(self):
         for module in self.sbert.modules():
-            if isinstance(module, sentence_transformers.SentenceTransformer):
+            if isinstance(module, sentence_transformers.SentenceTransformer) or isinstance(module, ImageModel):
                 return module
 
     def parameters(self, recurse=True):
@@ -69,9 +70,8 @@ class LayerSBERT(keras.layers.Layer):
 
     def build(self):
         self.to(self.device)
-        sample_input = ["text", "text2"]
-        inp = self.tokenize(sample_input)
-        _ = self.call(inp)
+        sample_input = {k: v[:2].to(self.device) for k, v in self.tokenized_sentences.items()}
+        _ = self.call(sample_input)
         self.track_module_parameters()
 
     def call(self, x):

@@ -49,7 +49,9 @@ parser.add_argument(
 )
 
 # sentence transformer details
-parser.add_argument("--sbert", default="-", type=str, help="Input sentence transformer model to train")
+parser.add_argument("--sbert", default=None, type=str, help="Input sentence transformer model to train")
+parser.add_argument("--image_model", default=None, type=str, help="Input image model model to train")
+
 parser.add_argument(
     "--max_seq_length",
     default=None,
@@ -135,28 +137,12 @@ from models import NMSEbeeformer, SparseKerasELSA  # , simpleBee
 from schedules import LinearWarmup
 from utils import *
 
+import images
+
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Using device {DEVICE}")
 
-
-def main(args):
-    # prepare logging folder
-    folder = os.path.join(
-        "results", f"{str(pd.Timestamp('today'))} {9*int(1e6)+np.random.randint(999999)}".replace(" ", "_")
-    )
-    if not os.path.exists(folder):
-        os.makedirs(folder)
-    vargs = vars(args)
-    vargs["cuda_or_cpu"] = DEVICE
-    pd.Series(vargs).to_csv(f"{folder}/setup.csv")
-    print(f"Saving results to {folder}")
-
-    # set random seeds for reproducibility
-    torch.manual_seed(args.seed)
-    keras.utils.set_random_seed(args.seed)
-    np.random.seed(args.seed)
-    print(f"seeds set to {args.seed}")
-
+def load_data(args):
     if args.validation == "true":
         what = "val"
     else:
@@ -235,8 +221,11 @@ def main(args):
             print(x)
         print("goodlens")
         print()
-        return
+        return None, None, None
+    
+    return dataset, evaluator, _train_interactions, items_d
 
+def load_text_model(args, items_d, dataset, _train_interactions):
     # load and preprocess text side information
     print("Preprocessing texts.")
     if args.evaluate == "true" or args.evaluate_epoch == "true":
@@ -285,37 +274,18 @@ def main(args):
     # tokenize item text side information (descriptions)
     am_tokenized = sbert.tokenize(am_texts)
 
-    # training in paralel on multiple gpus
-    # obsolete, should be rewritten to use torch.nn.DistributedDataParallel
-    if args.devices is not None:
-        print(f"Will run sbert on devices {args.devices}")
-        module_sbert = torch.nn.DataParallel(sbert, device_ids=eval(args.devices), output_device=0)
-    else:
-        module_sbert = sbert
+    return am_texts_all, am_tokenized, sbert
 
-    # create X train
-    print("Creating interaction matrix for training")
-    X = get_sparse_matrix_from_dataframe(_train_interactions)
+def load_image_model(args, items_d, dataset, _train_interactions):
+    image_model = images.ImageModel(args.image_model, device=DEVICE)
 
-    # prepare dataloader
-    print("Creating dataloader")
-    datal = beeformerDataset(
-        X, am_tokenized, DEVICE, shuffle=True, max_output=args.max_output, batch_size=args.batch_size
-    )
-    steps_per_epoch = len(datal)
+    tokenized_images_dict = images.read_images_into_dict(dataset.all_interactions.item_id.cat.categories, fn=image_model.tokenize, path=dataset.images_dir, suffix=dataset.images_suffix)
+    tokenized_train_images = images.read_images_from_dict(_train_interactions.item_id.cat.categories, tokenized_images_dict)
+    tokenized_test_images = images.read_images_from_dict(dataset.test_interactions.item_id.cat.categories, tokenized_images_dict)
 
-    print(sbert)
+    return tokenized_test_images, tokenized_train_images, image_model
 
-    # create trainable keras model
-    model = NMSEbeeformer(
-        tokenized_sentences=am_tokenized,
-        items_idx=_train_interactions.item_id.cat.categories,
-        sbert=keras.layers.TorchModuleWrapper(module_sbert),
-        device=DEVICE,
-        top_k=args.top_k,
-        sbert_batch_size=args.sbert_batch_size,
-    )
-
+def prepare_schedule(args):
     # prepare training schedule
     if args.scheduler == "CosineDecay":
         schedule = keras.optimizers.schedules.CosineDecay(
@@ -342,12 +312,85 @@ def main(args):
         schedule = args.lr
         epochs = args.epochs
         print("Using constant learning rate of", schedule)
+    
+    return schedule, epochs
+
+def main(args):
+    # prepare logging folder
+    folder = os.path.join(
+        "results", f"{str(pd.Timestamp('today'))} {9*int(1e6)+np.random.randint(999999)}".replace(" ", "_")
+    )
+    if not os.path.exists(folder):
+        os.makedirs(folder)
+    vargs = vars(args)
+    vargs["cuda_or_cpu"] = DEVICE
+    pd.Series(vargs).to_csv(f"{folder}/setup.csv")
+    print(f"Saving results to {folder}")
+
+    # set random seeds for reproducibility
+    torch.manual_seed(args.seed)
+    keras.utils.set_random_seed(args.seed)
+    np.random.seed(args.seed)
+    print(f"seeds set to {args.seed}")
+
+    if args.validation == "true":
+        what = "val"
+    else:
+        what = "test"
+
+    # read data
+    dataset, evaluator, _train_interactions, items_d = load_data(args)
+    
+    if dataset is None:
+        return
+
+    if args.sbert is not None: 
+        # load and preprocess text side information
+        am_texts_all, am_tokenized, sbert = load_text_model(args, items_d, dataset, _train_interactions)
+    elif args.image_model is not None:
+        am_texts_all, am_tokenized, sbert = load_image_model(args, items_d, dataset, _train_interactions)
+    else:
+        print("Dont know what to train. Please specify the --sbert argument.")
+
+    # training in paralel on multiple gpus
+    if args.devices is not None:
+        print(f"Will run sbert on devices {args.devices}")
+        devices_to_run = eval(args.devices)
+        module_sbert = torch.nn.DataParallel(sbert, device_ids=devices_to_run, output_device=devices_to_run[0])
+    else:
+        module_sbert = sbert
+
+    # create X train
+    print("Creating interaction matrix for training")
+    X = get_sparse_matrix_from_dataframe(_train_interactions)
+
+    # prepare dataloader
+    print("Creating dataloader")
+    datal = beeformerDataset(
+        X, am_tokenized, DEVICE, shuffle=True, max_output=args.max_output, batch_size=args.batch_size
+    )
+    steps_per_epoch = len(datal)
+
+    print(sbert)
+
+    # create trainable keras model
+    model = NMSEbeeformer(
+        tokenized_sentences=am_tokenized,
+        items_idx=_train_interactions.item_id.cat.categories,
+        sbert=keras.layers.TorchModuleWrapper(module_sbert),
+        device=DEVICE,
+        top_k=args.top_k,
+        sbert_batch_size=args.sbert_batch_size,
+    )
+
+    # prepare lr schedule 
+    schedule, epochs = prepare_schedule(args)
 
     model.to(DEVICE)
 
     # create callback object to monitor the training procedure
     cbs = []
-    if args.evaluate == "true" or args.evaluate_epoch == "true":
+    if args.evaluate == "true" or args.evaluate_epoch == "true" or args.save_every_epoch == "true":
         eval_cb = evaluateWriter(
             items_idx=dataset.all_interactions.item_id.cat.categories,
             sbert=sbert,

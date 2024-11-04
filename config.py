@@ -70,4 +70,29 @@ config = {
             "num_coldstart_items": 2000,
         },
     ),
+    "amazon-electronics": (
+        Dataset("Amazon electronics"),
+        {
+            "raw_data": """pd.read_feather("_datasets/amazon_electronics/electronics_interactions_small.feather")""",
+            "value_name": "value",
+            "item_id_name": "item_id",
+            "user_id_name": "user_id",
+            "timestamp_name": "timestamp",
+            "min_value_to_keep": 1.0,
+            "user_min_support": 1,
+            "item_min_support": 1,
+            "set_all_values_to": 1.0,
+            "num_test_users": 10000,
+            "random_state": 42,
+            "max_steps": 1000,
+            "load_previous_splits": False,
+            "items_raw_data": """pd.read_feather("_datasets/amazon_electronics/electronics_items_small.feather")""",
+            "items_item_id_name": "asin",
+            "items_preprocess": """f'{row.title}'""",
+            "coldstart_fraction": 0.1,
+            "num_coldstart_items": 2000,
+            "images_dir": "_datasets/amazon_electronics/images"
+        },
+    ),
+    
 }
