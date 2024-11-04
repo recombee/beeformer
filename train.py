@@ -281,7 +281,7 @@ def load_image_model(args, items_d, dataset, _train_interactions):
 
     tokenized_images_dict = images.read_images_into_dict(dataset.all_interactions.item_id.cat.categories, fn=image_model.tokenize, path=dataset.images_dir, suffix=dataset.images_suffix)
     tokenized_train_images = images.read_images_from_dict(_train_interactions.item_id.cat.categories, tokenized_images_dict)
-    tokenized_test_images = images.read_images_from_dict(dataset.test_interactions.item_id.cat.categories, tokenized_images_dict)
+    tokenized_test_images = images.read_images_from_dict(dataset.all_interactions.item_id.cat.categories, tokenized_images_dict)
 
     return tokenized_test_images, tokenized_train_images, image_model
 
