@@ -1,5 +1,6 @@
 from config import config
 from utils import *
+import transformers
 from transformers import AutoImageProcessor, AutoModel
 import math 
 from PIL import Image
@@ -73,7 +74,7 @@ class ImageModel(torch.nn.Module):
             return {k: v[ind_min:ind_max].to(self.device) if isinstance(v, torch.Tensor) else v[ind_min:ind_max] for k, v in tokens.items()}
         return {k: v.to(self.device) if isinstance(v, torch.Tensor) else v for k, v in tokens.items()}
 
-    def encode(self, tokenized_images, batch_size=32):
+    def encode(self, tokenized_images, batch_size=32, show_progress_bar=False):
         l = get_first_item(tokenized_images).shape[0]
         max_i = math.ceil(l / batch_size)
         ret = []
@@ -92,6 +93,10 @@ class ImageModel(torch.nn.Module):
 
     def _load(self, model_name, trust_remote_code):
         self.processor = AutoImageProcessor.from_pretrained(model_name)
+        
         self.model = AutoModel.from_pretrained(model_name, trust_remote_code=trust_remote_code)
-
+        
+        # hack for using CLIP model image encoder
+        if isinstance(self.model, transformers.models.clip.modeling_clip.CLIPModel):
+            self.model = self.model.vision_model
 
