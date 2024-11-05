@@ -1,10 +1,13 @@
 from config import config
 from utils import *
 import transformers
-from transformers import AutoImageProcessor, AutoModel
+from transformers import AutoImageProcessor, AutoModel, CLIPVisionModel
 import math 
 from PIL import Image
 import os
+
+ERR = []
+TOK = []
 
 def read_image(id, fn, path, suffix=""):
     try:
@@ -12,12 +15,21 @@ def read_image(id, fn, path, suffix=""):
     except FileNotFoundError:
         print(f"Error reading image {os.path.join(path,id+suffix+'.jpg')}. Replacing with empty image.")
         img=Image.fromarray(np.zeros([10,10,3]).astype('uint8'), 'RGB')
-    return fn([img])
+        ERR.append(id)
+    except:
+        print(f"Differnt error with image {os.path.join(path,id+suffix+'.jpg')}. Replacing with empty image.")
+        img=Image.fromarray(np.zeros([10,10,3]).astype('uint8'), 'RGB')
+    try:
+        return fn([img])
+    except:
+        print(f"Tokenizatition error for {os.path.join(path,id+suffix+'.jpg')}")
+        TOK.append(id)
+        return None
 
 def read_images_into_dict(ids, fn, path, suffix=""):
     t={}
     for id in tqdm(ids):
-        t[id]=(read_image(id,fn,path))
+        t[id]=(read_image(id,fn,path,suffix))
     return t
 
 def read_images(ids, fn, path, suffix=""):
@@ -98,5 +110,6 @@ class ImageModel(torch.nn.Module):
         
         # hack for using CLIP model image encoder
         if isinstance(self.model, transformers.models.clip.modeling_clip.CLIPModel):
-            self.model = self.model.vision_model
+            print("creating clip vision model")
+            self.model = CLIPVisionModel.from_pretrained(model_name)
 
