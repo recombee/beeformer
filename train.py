@@ -289,7 +289,7 @@ def load_image_model(args, items_d, dataset, _train_interactions):
 
     return tokenized_test_images, tokenized_train_images, image_model
 
-def prepare_schedule(args):
+def prepare_schedule(args, steps_per_epoch):
     # prepare training schedule
     if args.scheduler == "CosineDecay":
         schedule = keras.optimizers.schedules.CosineDecay(
@@ -388,7 +388,7 @@ def main(args):
     )
 
     # prepare lr schedule 
-    schedule, epochs = prepare_schedule(args)
+    schedule, epochs = prepare_schedule(args, steps_per_epoch)
 
     model.to(DEVICE)
 
