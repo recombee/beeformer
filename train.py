@@ -248,6 +248,8 @@ def load_text_model(args, items_d, dataset, _train_interactions):
             am_texts = items_d.fillna(0).apply(lambda row: f"{row.title}: {'. '.join(eval(row.description))}", axis=1)
 
         am_texts_all = am_texts.to_numpy()[am_locator]  # evaluation texts
+    else:
+        am_texts_all = None
 
     am_itemids = items_d.asin.to_numpy()
     cc = np.array(_train_interactions.item_id.cat.categories)
@@ -273,7 +275,9 @@ def load_text_model(args, items_d, dataset, _train_interactions):
 
     # tokenize item text side information (descriptions)
     am_tokenized = sbert.tokenize(am_texts)
-
+    if am_texts_all is None:
+        am_texts_all = am_texts
+        
     return am_texts_all, am_tokenized, sbert
 
 def load_image_model(args, items_d, dataset, _train_interactions):
