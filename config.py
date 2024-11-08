@@ -110,9 +110,9 @@ config = {
             "random_state": 42,
             "max_steps": 1000,
             "load_previous_splits": False,
-            "items_raw_data": """pd.read_feather("_datasets/amazon_fashion/fashion_items_small.feather")""",
+            "items_raw_data": """pd.read_feather("_datasets/amazon_fashion/fashion_items_small_text.feather")""",
             "items_item_id_name": "asin",
-            "items_preprocess": """f'{row.title}'""",
+            "items_preprocess": """f'{row.text}'""",
             "coldstart_fraction": 0.1,
             "num_coldstart_items": 2000,
             "images_dir": "_datasets/amazon_fashion/images"

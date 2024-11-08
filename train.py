@@ -139,6 +139,8 @@ from utils import *
 
 import images
 
+torch.set_float32_matmul_precision('medium')
+
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Using device {DEVICE}")
 
